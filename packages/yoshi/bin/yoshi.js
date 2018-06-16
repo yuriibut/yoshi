@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 const prog = require('caporal');
-const runCLI = require('../src/cli');
-const { version } = require('../package');
+const Insight = require('insight');
+const createRunCLI = require('../src/cli');
+const pkg = require('../package');
 
 const { BOOL, INT } = prog;
 const infoCommand = require('../src/commands/info');
@@ -9,7 +10,16 @@ const infoCommand = require('../src/commands/info');
 // IDEs start debugging with '--inspect' or '--inspect-brk' option. We are setting --debug instead
 require('./normalize-debugging-args')();
 
-prog.version(version).description('A toolkit for building applications in Wix');
+const insight = new Insight({
+  trackingCode: 'xxx',
+  pkg,
+});
+
+const runCLI = createRunCLI(insight);
+
+prog
+  .version(pkg.version)
+  .description('A toolkit for building applications in Wix');
 
 prog
   .command('lint', 'Run the linter')
@@ -83,8 +93,21 @@ prog
   .command('info', 'Get your local environment information')
   .action(infoCommand);
 
-prog.parse(process.argv);
+// Ask for permission the first time
+if (insight.optOut === undefined) {
+  insight.askPermission(null, () => {
+    prog.parse(process.argv);
+  });
+} else {
+  prog.parse(process.argv);
+}
 
 process.on('unhandledRejection', error => {
+  insight.trackEvent({
+    category: 'error',
+    action: 'error',
+    error,
+  });
+
   throw error;
 });

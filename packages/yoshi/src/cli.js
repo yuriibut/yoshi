@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const presetPath = require.resolve('../src/index.js');
 
-module.exports = async command => {
+module.exports = insight => async command => {
   const appDirectory = fs.realpathSync(process.cwd());
   const preset = require(presetPath);
   const action = preset[command];
@@ -17,6 +17,12 @@ module.exports = async command => {
       process.exit(0);
     }
   } catch (error) {
+    insight.trackEvent({
+      category: 'error',
+      action: 'error',
+      error,
+    });
+
     if (error.name !== 'WorkerError') {
       console.error(error);
     }
