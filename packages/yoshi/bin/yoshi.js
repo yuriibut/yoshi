@@ -3,6 +3,7 @@ const prog = require('caporal');
 const Insight = require('insight');
 const createRunCLI = require('../src/cli');
 const pkg = require('../package');
+const { inTeamCity } = require('../src/utils');
 
 const { BOOL, INT } = prog;
 const infoCommand = require('../src/commands/info');
@@ -14,6 +15,10 @@ const insight = new Insight({
   trackingCode: 'xxx',
   pkg,
 });
+
+if (inTeamCity()) {
+  insight.optOut = true;
+}
 
 const runCLI = createRunCLI(insight);
 
