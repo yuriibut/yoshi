@@ -98,14 +98,7 @@ prog
   .command('info', 'Get your local environment information')
   .action(infoCommand);
 
-// Ask for permission the first time
-if (insight.optOut === undefined) {
-  insight.askPermission(null, () => {
-    prog.parse(process.argv);
-  });
-} else {
-  prog.parse(process.argv);
-}
+prog.parse(process.argv);
 
 process.on('unhandledRejection', error => {
   insight.trackEvent({
