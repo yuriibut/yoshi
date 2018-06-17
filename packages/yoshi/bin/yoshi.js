@@ -110,8 +110,8 @@ if (insight.optOut === undefined) {
 process.on('unhandledRejection', error => {
   insight.trackEvent({
     category: 'error',
-    action: 'error',
-    error,
+    action: 'n/a',
+    label: error.stack,
   });
 
   throw error;

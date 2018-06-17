@@ -19,8 +19,8 @@ module.exports = insight => async command => {
   } catch (error) {
     insight.trackEvent({
       category: 'error',
-      action: 'error',
-      error,
+      action: command,
+      label: error.stack,
     });
 
     if (error.name !== 'WorkerError') {
