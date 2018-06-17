@@ -12,7 +12,7 @@ const infoCommand = require('../src/commands/info');
 require('./normalize-debugging-args')();
 
 const insight = new Insight({
-  trackingCode: 'xxx',
+  trackingCode: 'UA-120893726-1',
   pkg,
 });
 
