@@ -7,7 +7,7 @@ const test = 'test';
 const base = `{app,src,bin,${test},testkit,stories}`;
 const assetsLegacyBase = `{app,bin,${test},testkit,stories}`;
 const assetsBase = 'src';
-const codeFiles = '*.js{,x}';
+const codeFiles = '*.(js|ts){,x}';
 
 module.exports = {
   base: () => base,
@@ -32,7 +32,7 @@ module.exports = {
   assetsBase: () => assetsBase,
   assetsLegacyBase: () => assetsLegacyBase,
   statics: () => statics,
-  babel: list => [path.join(list || base, '**', codeFiles), 'index.js'],
+  babel: list => [path.join(list || base, '**', '*.js{,x}'), 'index.js'],
   specs: () => `${base}/**/*.+(spec|it).+(js|ts){,x}`,
   e2e: () => `${test}/**/*.e2e.{js,ts}`,
   singleModule: {
