@@ -1,6 +1,7 @@
 const { createRunner } = require('haste-core');
 const path = require('path');
 const parseArgs = require('minimist');
+const minimatch = require('minimatch');
 const crossSpawn = require('cross-spawn');
 const LoggerPlugin = require('../plugins/haste-plugin-yoshi-logger');
 const {
@@ -35,6 +36,8 @@ const shouldRunTests = cliArgs.test !== false;
 const debugPort = cliArgs.debug;
 const debugBrkPort = cliArgs['debug-brk'];
 const entryPoint = addJsSuffix(cliArgs['entry-point'] || 'index.js');
+const WATCH_DEBOUNCE_MS = 500;
+const WATCH_DEBOUNCE_MAXWAIT_MS = 1000;
 
 module.exports = runner.command(
   async tasks => {
@@ -248,22 +251,47 @@ module.exports = runner.command(
         await appServer();
 
         return watch(
-          { pattern: [path.join('dist', '**', '*.js'), 'index.js'] },
-          debounce(appServer, 500, { maxWait: 1000 }),
+          { pattern: [globs.commonFiles(), globs.serverFiles()] },
+          debounce(appServer, WATCH_DEBOUNCE_MS, {
+            maxWait: WATCH_DEBOUNCE_MAXWAIT_MS,
+          }),
         );
       }
 
       if (isBabelProject()) {
         watch(
-          { pattern: [path.join(globs.base(), '**', '*.js{,x}'), 'index.js'] },
-          async changed => {
-            await babel({ pattern: changed, target: 'dist', sourceMaps: true });
-            await appServer();
+          {
+            pattern: [
+              path.join(globs.base(), globs.allCodeFiles()),
+              'index.js',
+            ],
           },
+          debounce(
+            async changedFilePath => {
+              if (isCommonFile(changedFilePath)) {
+                await babel({
+                  pattern: changedFilePath,
+                  target: 'dist',
+                  sourceMaps: true,
+                });
+                await appServer();
+              } else if (isClientFile(changedFilePath)) {
+                await babel({
+                  pattern: changedFilePath,
+                  target: 'dist',
+                  sourceMaps: true,
+                });
+              } else if (isServerFile(changedFilePath)) {
+                await appServer();
+              }
+            },
+            WATCH_DEBOUNCE_MS,
+            { maxWait: WATCH_DEBOUNCE_MAXWAIT_MS },
+          ),
         );
 
         await babel({
-          pattern: [path.join(globs.base(), '**', '*.js{,x}'), 'index.js'],
+          pattern: [path.join(globs.base(), globs.allCodeFiles()), 'index.js'],
           target: 'dist',
           sourceMaps: true,
         });
@@ -277,3 +305,15 @@ module.exports = runner.command(
   },
   { persistent: true },
 );
+
+function isCommonFile(filePath) {
+  return minimatch(filePath, globs.commonFiles());
+}
+
+function isClientFile(filePath) {
+  return minimatch(filePath, globs.clientFiles());
+}
+
+function isServerFile(filePath) {
+  return minimatch(filePath, globs.serverFiles());
+}
