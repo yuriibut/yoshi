@@ -32,9 +32,9 @@ describe('Loaders', () => {
     const svgModule =
       'module.exports = "<svg><g><path fill=\\"#EEEEEE\\"></path></g></svg>"';
 
-    before(() => {
+    before(async () => {
       test = tp.create();
-      resp = test
+      resp = await test
         .setup({
           'src/client.js': `
             let aServerFunction = 1;
@@ -125,7 +125,7 @@ describe('Loaders', () => {
           }`,
           'pom.xml': fx.pom(),
         })
-        .execute('build', [], getMockedCI({ ci: false }));
+        .spawn('build', [], getMockedCI({ ci: false }));
     });
     after(() => test.teardown());
 
@@ -328,9 +328,9 @@ describe('Loaders', () => {
     let test;
     let resp;
 
-    before(() => {
+    before(async () => {
       test = tp.create();
-      resp = test
+      resp = await test
         .setup(
           {
             'src/app.ts': `
@@ -366,7 +366,7 @@ describe('Loaders', () => {
           },
           [installHaml],
         )
-        .execute('build', [], {
+        .spawn('build', [], {
           ...getMockedCI({ ci: false }),
           PATH:
             spawnSync('bundle', ['show', 'haml'], { cwd: test.tmp })
@@ -457,8 +457,8 @@ describe('Loaders', () => {
     beforeEach(() => (test = tp.create()));
     afterEach(() => test.teardown());
 
-    it('should fail with error code 1 if typescript code contains errors', () => {
-      const resp = test
+    it('should fail with error code 1 if typescript code contains errors', async () => {
+      const resp = await test
         .setup({
           'src/app.ts': 'function ()',
           'tsconfig.json': fx.tsconfig(),
@@ -466,14 +466,14 @@ describe('Loaders', () => {
             entry: './app.ts',
           }),
         })
-        .execute('build');
+        .spawn('build');
 
       expect(resp.code).to.equal(1);
       expect(resp.stderr).to.contain('error TS1003: Identifier expected');
     });
 
-    it('should resolve url() correctly using resolve url loader', () => {
-      const res = test
+    it('should resolve url() correctly using resolve url loader', async () => {
+      const res = await test
         .setup({
           'src/client.js': `require('./some-css.scss');`,
           'src/some-css.scss': '@import "./foo/imported"',
@@ -481,13 +481,13 @@ describe('Loaders', () => {
           'src/foo/bar.svg': '',
           'package.json': fx.packageJson(),
         })
-        .execute('build');
+        .spawn('build');
       expect(res.code).to.equal(0);
     });
 
     describe('Wix TPA style', () => {
-      it('should increase importLoaders in order to support native @import', () => {
-        test
+      it('should increase importLoaders in order to support native @import', async () => {
+        await test
           .setup({
             'src/client.js': `require('./some.css');`,
             'src/some.css': '@import "./other.css"',
@@ -495,7 +495,7 @@ describe('Loaders', () => {
               '.foo {appearance: smth; color: unquote("{{color-1}}")}',
             'package.json': fx.packageJson({ tpaStyle: true }),
           })
-          .execute('build', []);
+          .spawn('build', []);
 
         expect(test.content('dist/statics/app.css')).to.contain(
           '-webkit-appearance',
@@ -520,7 +520,7 @@ describe('Loaders', () => {
       });
 
       function setupAndBuild(config) {
-        test
+        return test
           .setup(
             {
               'src/client.js': `require('./some-css.st.css');`,
@@ -532,7 +532,7 @@ describe('Loaders', () => {
             },
             [],
           )
-          .execute('build');
+          .spawn('build');
       }
     });
   });

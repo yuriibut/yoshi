@@ -28,8 +28,8 @@ describe('Webpack basic configs', () => {
 
   describe('Common configurations', () => {
     describe('Basic flow', () => {
-      beforeEach(() => {
-        res = test.execute('build', [], insideTeamCity);
+      beforeEach(async () => {
+        res = await test.spawn('build', [], insideTeamCity);
       });
 
       it('should exit with exit code 0 on success', () =>
@@ -75,8 +75,8 @@ describe('Webpack basic configs', () => {
       expect(config.resolveLoader.modules).to.contain('node_modules'));
 
     describe('Custom configurations per project', () => {
-      it('should ignore externals from being bundled when externals config emerges', () => {
-        res = test
+      it('should ignore externals from being bundled when externals config emerges', async () => {
+        res = await test
           .setup({
             'src/client.js': `const aClientFunction = require('react');`,
             'package.json': fx.packageJson({
@@ -85,7 +85,7 @@ describe('Webpack basic configs', () => {
               },
             }),
           })
-          .execute('build');
+          .spawn('build');
 
         expect(test.content('dist/statics/app.bundle.js')).to.contain(
           'module.exports = React;',
@@ -95,36 +95,36 @@ describe('Webpack basic configs', () => {
   });
 
   describe('Client configurations', () => {
-    it('should have a default entry point ./client.js and output client.js', () => {
-      test
+    it('should have a default entry point ./client.js and output client.js', async () => {
+      await test
         .setup({
           'src/client.js': 'const some = 1',
         })
-        .execute('build');
+        .spawn('build');
 
       expect(test.content('dist/statics/app.bundle.js')).to.contain(
         'const some',
       );
     });
 
-    it('should set chunk filename', () => {
-      test
+    it('should set chunk filename', async () => {
+      await test
         .setup({
           'src/client.js': `require.ensure('./tmp', function(){}, 'tmp');`,
           'src/tmp.js': `var x = '(^_^)';`,
         })
-        .execute('build');
+        .spawn('build');
 
       expect(test.list('dist/statics/')).to.contain('tmp.chunk.js');
     });
 
-    it('should prepend dynamic public path (AKA __webpack_public_path__)', () => {
-      test
+    it('should prepend dynamic public path (AKA __webpack_public_path__)', async () => {
+      await test
         .setup({
           'src/image.jpg': '(^_^)'.repeat(2500),
           'src/client.js': `const img = require('./image.jpg');`,
         })
-        .execute('build');
+        .spawn('build');
 
       const content = test.content('dist/statics/app.bundle.js');
       const value = `typeof window !== 'undefined' && window.__STATICS_BASE_URL__ || __webpack_require__.p;`;
@@ -143,36 +143,36 @@ describe('Webpack basic configs', () => {
   });
 
   describe('Case sensitive plugin', () => {
-    it('Should fail on wrong file referance casing not matching', () => {
-      const res = test
+    it('Should fail on wrong file referance casing not matching', async () => {
+      const res = await test
         .setup({
           'src/client.js': `require('./casesensivitetest')`,
           'src/caseSensiviteTest.js': `return true;`,
         })
-        .execute('build');
+        .spawn('build');
 
       expect(res.code).to.equal(1);
     });
   });
 
   describe('DefinePlugin configuration', () => {
-    it('Should replace window.__CI_APP_VERSION__ with the current CI Artifact version', () => {
-      const res = test
+    it('Should replace window.__CI_APP_VERSION__ with the current CI Artifact version', async () => {
+      const res = await test
         .setup({
           'src/client.js': `const foo = window.__CI_APP_VERSION__;`,
         })
-        .execute('build', [], teamCityArtifactVersion);
+        .spawn('build', [], teamCityArtifactVersion);
 
       expect(res.code).to.equal(0);
       expect(test.content('dist/statics/app.bundle.js')).to.contain('"1.0.0"');
     });
 
-    it('Should default to 0.0.0 when not in CI', () => {
-      const res = test
+    it('Should default to 0.0.0 when not in CI', async () => {
+      const res = await test
         .setup({
           'src/client.js': `const foo = window.__CI_APP_VERSION__;`,
         })
-        .execute('build', [], noArtifactVersion);
+        .spawn('build', [], noArtifactVersion);
 
       expect(res.code).to.equal(0);
       expect(test.content('dist/statics/app.bundle.js')).to.contain('"0.0.0"');
@@ -197,8 +197,8 @@ describe('Webpack basic configs', () => {
       });
     });
 
-    it('should warn on build command', () => {
-      res = test.execute('build');
+    it('should warn on build command', async () => {
+      res = await test.spawn('build');
       expect(res.stdout).to.contain(warningOutput);
     });
 
@@ -229,16 +229,16 @@ describe('Webpack basic configs', () => {
       });
     });
 
-    it('should enable scope hoisting by default', () => {
-      test.execute('build', [], {});
+    it('should enable scope hoisting by default', async () => {
+      await test.spawn('build', [], {});
 
       expect(test.content('./dist/statics/app.bundle.js')).to.contain(
         'CONCATENATED MODULE',
       );
     });
 
-    it('should disable scope hoisting when DISABLE_MODULE_CONCATENATION is set', () => {
-      test.execute('build', [], {
+    it('should disable scope hoisting when DISABLE_MODULE_CONCATENATION is set', async () => {
+      await test.spawn('build', [], {
         DISABLE_MODULE_CONCATENATION: 'true',
       });
 
@@ -268,10 +268,10 @@ describe('Webpack basic configs', () => {
   });
 
   describe('Performance budget', () => {
-    it('should fail the build when exceeding the given max bundle size', () => {
+    it('should fail the build when exceeding the given max bundle size', async () => {
       const maxSize = 10;
       const expectedOutput = `The following entrypoint(s) combined asset size exceeds the recommended limit (${maxSize} bytes)`;
-      res = test
+      res = await test
         .setup({
           'package.json': fx.packageJson({
             performance: {
@@ -280,7 +280,7 @@ describe('Webpack basic configs', () => {
             },
           }),
         })
-        .execute('build');
+        .spawn('build');
 
       expect(res.code, 'Build error code should be 1').to.equal(1);
       expect(

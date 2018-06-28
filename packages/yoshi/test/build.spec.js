@@ -35,9 +35,9 @@ describe('Aggregator: Build', () => {
       },
     };
 
-    before(() => {
+    before(async () => {
       test = tp.create();
-      resp = test
+      resp = await test
         .setup(
           {
             '.babelrc': `{"presets": [["${require.resolve(
@@ -107,7 +107,7 @@ describe('Aggregator: Build', () => {
             ),
           ],
         )
-        .execute('build', []);
+        .spawn('build', []);
     });
 
     after(() => {
@@ -411,9 +411,9 @@ describe('Aggregator: Build', () => {
   describe('simple tree shaking scenario', () => {
     let resp;
 
-    before(() => {
+    before(async () => {
       test = tp.create();
-      resp = test
+      resp = await test
         .setup({
           '.babelrc': `{"presets": ["${require.resolve(
             'babel-preset-yoshi',
@@ -424,7 +424,7 @@ describe('Aggregator: Build', () => {
             entry: './a.js',
           }),
         })
-        .execute('build');
+        .spawn('build');
     });
 
     after(() => {
@@ -449,9 +449,9 @@ describe('Aggregator: Build', () => {
   describe('simple tree shaking scenario in typescript', () => {
     let resp;
 
-    before(() => {
+    before(async () => {
       test = tp.create();
-      resp = test
+      resp = await test
         .setup({
           'tsconfig.json': fx.tsconfig({
             compilerOptions: {
@@ -465,7 +465,7 @@ describe('Aggregator: Build', () => {
             entry: './a.ts',
           }),
         })
-        .execute('build');
+        .spawn('build');
     });
 
     after(() => {
@@ -493,10 +493,10 @@ describe('Aggregator: Build', () => {
 
   describe('simple development project with 1 entry point, ES modules, non-separate styles, babel, commons chunks and w/o cssModules', () => {
     let resp;
-    before(() => {
+    before(async () => {
       test = tp.create();
 
-      resp = test
+      resp = await test
         .setup({
           '.babelrc': `{"presets": [["${require.resolve(
             'babel-preset-env',
@@ -524,8 +524,9 @@ describe('Aggregator: Build', () => {
             },
           ),
         })
-        .execute('build');
+        .spawn('build');
     });
+
     after(() => {
       test.teardown();
     });
@@ -592,10 +593,10 @@ describe('Aggregator: Build', () => {
   describe('simple project with typescript and angular that runs on CI (Teamcity) and w/ 1 entry point w/o extenstion', () => {
     let resp;
 
-    before(() => {
+    before(async () => {
       test = tp.create();
 
-      resp = test
+      resp = await test
         .setup({
           'src/client.ts': `console.log("hello");
             import './styles/style.scss';
@@ -621,7 +622,7 @@ describe('Aggregator: Build', () => {
             },
           ),
         })
-        .execute('build', [], insideTeamCity);
+        .spawn('build', [], insideTeamCity);
     });
     after(() => {
       test.teardown();
@@ -707,10 +708,10 @@ describe('Aggregator: Build', () => {
   describe('simple project with typescript and angular that runs on CI (Teamcity) and with 1 entry point w/o extension', () => {
     let resp;
 
-    before(() => {
+    before(async () => {
       test = tp.create();
 
-      resp = test
+      resp = await test
         .setup({
           'src/client.ts': `console.log("hello"); import './styles/style.scss';`,
           'src/a.ts': 'export default "I\'m a module!";',
@@ -724,7 +725,7 @@ describe('Aggregator: Build', () => {
             cssModules: true,
           }),
         })
-        .execute('build', [], { NODE_ENV: 'PRODUCTION' });
+        .spawn('build', [], { NODE_ENV: 'PRODUCTION' });
     });
 
     after(() => {
@@ -759,10 +760,10 @@ describe('Aggregator: Build', () => {
 
   describe('simple development project with 1 entry point, ES modules, cssModules, typescript', () => {
     let resp;
-    before(() => {
+    before(async () => {
       test = tp.create();
 
-      resp = test
+      resp = await test
         .setup({
           'src/client.ts': `console.log("hello"); import './styles/style.scss'; import './styles/stylableFile.st.css'`,
           'src/a.ts': 'export default "I\'m a module!";',
@@ -783,7 +784,7 @@ describe('Aggregator: Build', () => {
             },
           ),
         })
-        .execute('build', [], { NODE_ENV: 'PRODUCTION' });
+        .spawn('build', [], { NODE_ENV: 'PRODUCTION' });
     });
     after(() => {
       test.teardown();
@@ -837,22 +838,22 @@ describe('Aggregator: Build', () => {
     });
 
     describe('build project w/o individual transpilation', () => {
-      it('should not transpile if no tsconfig/babelrc', () => {
-        const resp = test
+      it('should not transpile if no tsconfig/babelrc', async () => {
+        const resp = await test
           .setup({
             'src/b.ts': 'const b = 2;',
             'src/a/a.js': 'const a = 1;',
             'package.json': fx.packageJson(),
           })
-          .execute('build');
+          .spawn('build');
 
         expect(resp.stdout).to.not.contain(`Finished 'babel'`);
         expect(resp.code).to.equal(0);
         expect(test.list('/')).not.to.include('dist');
       });
 
-      it('should not transpile if runIndividualTranspiler = false', () => {
-        const resp = test
+      it('should not transpile if runIndividualTranspiler = false', async () => {
+        const resp = await test
           .setup({
             '.babelrc': '{}',
             'src/b.ts': 'const b = 2;',
@@ -861,7 +862,7 @@ describe('Aggregator: Build', () => {
               runIndividualTranspiler: false,
             }),
           })
-          .execute('build');
+          .spawn('build');
 
         expect(resp.stdout).to.not.contain(`Finished 'babel'`);
         expect(resp.code).to.equal(0);
@@ -870,15 +871,15 @@ describe('Aggregator: Build', () => {
     });
 
     describe('build project with angular dependency and w/o entry files and default entries', () => {
-      it('should exit with code 0 and not create bundle.js when there is no custom entry configures and default entry does not exist', () => {
-        const res = test
+      it('should exit with code 0 and not create bundle.js when there is no custom entry configures and default entry does not exist', async () => {
+        const res = await test
           .setup({
             'tsconfig.json': fx.tsconfig({ files: ['src/example.ts'] }),
             'package.json': fx.packageJson(),
             'pom.xml': fx.pom(),
             'src/example.ts': `console.log('horrey')`,
           })
-          .execute('build');
+          .spawn('build');
 
         expect(res.code).to.equal(0);
         expect(test.list('dist/statics')).not.to.contain('app.bundle.js');
@@ -887,15 +888,16 @@ describe('Aggregator: Build', () => {
 
     describe('build project error cases', () => {
       describe('Babel', () => {
-        it('should fail with exit code 1', () => {
-          const resp = test
+        it('should fail with exit code 1', async () => {
+          const resp = await test
             .setup({
               '.babelrc': '{}',
               'src/a.js': 'function ()',
               'package.json': fx.packageJson(),
               'pom.xml': fx.pom(),
             })
-            .execute('build');
+            .spawn('build');
+
           expect(resp.code).to.equal(1);
           expect(resp.stderr).to.contain('Unexpected token (1:9)');
           expect(resp.stderr).to.contain('1 | function ()');
@@ -903,23 +905,23 @@ describe('Aggregator: Build', () => {
       });
 
       describe('Typescript', () => {
-        it('should fail with exit code 1', () => {
-          const resp = test
+        it('should fail with exit code 1', async () => {
+          const resp = await test
             .setup({
               'src/a.ts': 'function ()',
               'tsconfig.json': fx.tsconfig(),
               'package.json': fx.packageJson(),
               'pom.xml': fx.pom(),
             })
-            .execute('build');
+            .spawn('build');
 
           expect(resp.code).to.equal(1);
           expect(resp.stderr).to.contain('error TS1003: Identifier expected');
         });
       });
 
-      it('should exit with code 1 with a custom entry that does not exist', () => {
-        const res = test
+      it('should exit with code 1 with a custom entry that does not exist', async () => {
+        const res = await test
           .setup({
             'tsconfig.json': fx.tsconfig(),
             'package.json': fx.packageJson({
@@ -927,47 +929,48 @@ describe('Aggregator: Build', () => {
             }),
             'pom.xml': fx.pom(),
           })
-          .execute('build');
+          .spawn('build');
 
         expect(res.code).to.equal(1);
         expect(test.list('dist/statics')).not.to.contain('app.bundle.js');
       });
 
-      it("should fail with exit code 1 when yoshi can't transpile sass file", () => {
-        const res = test
+      it("should fail with exit code 1 when yoshi can't transpile sass file", async () => {
+        const res = await test
           .setup({
             'src/client.js': "require('./style1.scss');",
             'src/style.scss': `.a {.b {color: red;}}`,
             'package.json': fx.packageJson(),
           })
-          .execute('build');
+          .spawn('build');
 
         expect(res.code).to.equal(1);
       });
 
-      it("should fail with exit code 1 when yoshi can't transpile less file", () => {
-        const resp = test
+      it("should fail with exit code 1 when yoshi can't transpile less file", async () => {
+        const resp = await test
           .setup({
             'src/client.js': '',
             'app/a/style.less': '.a {\n.b\ncolor: red;\n}\n}\n',
             'package.json': fx.packageJson(),
           })
-          .execute('build');
+          .spawn('build');
 
         expect(resp.code).to.equal(1);
         expect(resp.stdout).to.contain(`Failed 'less'`);
         expect(resp.stderr).to.contain(`Unrecognised input`);
       });
 
-      it("should fail with exit code 1 when yoshi can't transpile js file", () => {
-        const res = test
+      it("should fail with exit code 1 when yoshi can't transpile js file", async () => {
+        const res = await test
           .setup({
             'src/client.js': `const aFunction = require('./dep');const a = aFunction(1);`,
             'src/dep.js': `module.exports = a => {`,
             'package.json': fx.packageJson(),
             'pom.xml': fx.pom(),
           })
-          .execute('build');
+          .spawn('build');
+
         expect(res.code).to.equal(1);
         expect(res.stdout).to.contain('Module build failed');
         expect(res.stderr).to.contain('Unexpected token (2:0)');
@@ -976,10 +979,11 @@ describe('Aggregator: Build', () => {
   });
 
   describe.skip('yoshi-check-deps', () => {
-    it("should run yoshi-check-deps and do nothing because yoshi isn't installed", () => {
-      const resp = test
+    it("should run yoshi-check-deps and do nothing because yoshi isn't installed", async () => {
+      const resp = await test
         .setup({ 'package.json': fx.packageJson() })
-        .execute('build');
+        .spawn('build');
+
       expect(resp.stdout).to.contain('checkDeps');
     });
   });

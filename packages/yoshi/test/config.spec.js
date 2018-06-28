@@ -9,8 +9,8 @@ describe('Lookup and read configuration', () => {
   beforeEach(() => (test = tp.create()));
   afterEach(() => test.teardown());
 
-  it('should consider that package.json has higher priority than yoshi.config.js', () => {
-    const res = test
+  it('should consider that package.json has higher priority than yoshi.config.js', async () => {
+    const res = await test
       .setup({
         'src/app1.js': `'I am entry from package';`,
         'src/app2.js': `'I am entry from yoshi.config';`,
@@ -25,7 +25,8 @@ describe('Lookup and read configuration', () => {
           },
         }),
       })
-      .execute('build');
+      .spawn('build');
+
     expect(res.code).to.equal(0);
     expect(test.content('dist/statics/app.bundle.js')).to.contain(
       'I am entry from package',
@@ -35,8 +36,8 @@ describe('Lookup and read configuration', () => {
     );
   });
 
-  it('should use `yoshi.config.js` if no `yoshi` field in package.json was specified', () => {
-    const res = test
+  it('should use `yoshi.config.js` if no `yoshi` field in package.json was specified', async () => {
+    const res = await test
       .setup({
         'src/app1.js': `'I am entry from package';`,
         'src/app2.js': `'I am entry from yoshi.config';`,
@@ -47,7 +48,8 @@ describe('Lookup and read configuration', () => {
       };`,
         'package.json': '{}',
       })
-      .execute('build');
+      .spawn('build');
+
     expect(res.code).to.equal(0);
     expect(test.content('dist/statics/app.bundle.js')).to.contain(
       'I am entry from yoshi.config',
@@ -58,8 +60,8 @@ describe('Lookup and read configuration', () => {
   });
 
   describe('extends option', () => {
-    it('should allow extending the base config with defaults', () => {
-      const res = test
+    it('should allow extending the base config with defaults', async () => {
+      const res = await test
         .setup({
           'src/app1.js': `'entry.app1';`,
           'src/app2.js': `'entry.app2';`,
@@ -69,7 +71,7 @@ describe('Lookup and read configuration', () => {
             extends: path.join(test.tmp, 'yoshi-config-test'),
           }),
         })
-        .execute('build');
+        .spawn('build');
 
       expect(res.code).to.equal(0);
       expect(test.content('dist/statics/app.bundle.js')).to.contain(
@@ -80,8 +82,8 @@ describe('Lookup and read configuration', () => {
       );
     });
 
-    it('should allow overriding the default configs', () => {
-      const res = test
+    it('should allow overriding the default configs', async () => {
+      const res = await test
         .setup({
           'src/app1.js': `'entry.app1';`,
           'src/app2.js': `'entry.app2';`,
@@ -92,7 +94,7 @@ describe('Lookup and read configuration', () => {
             entry: './app2',
           }),
         })
-        .execute('build');
+        .spawn('build');
 
       expect(res.code).to.equal(0);
       expect(test.content('dist/statics/app.bundle.js')).to.not.contain(

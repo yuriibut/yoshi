@@ -17,13 +17,13 @@ describe('Aggregator: e2e', () => {
   describe('should run protractor with a cdn server', function() {
     this.timeout(60000);
 
-    it('should download chromedriver 2.29 and use it (when there is environement param IS_BUILD_AGENT and no CHROMEDRIVER_VERSION supplied)', () => {
-      const res = test
+    it('should download chromedriver 2.29 and use it (when there is environement param IS_BUILD_AGENT and no CHROMEDRIVER_VERSION supplied)', async () => {
+      const res = await test
         .setup({
           'protractor.conf.js': '',
           'package.json': fx.packageJson(),
         })
-        .execute(
+        .spawn(
           'test',
           ['--protractor'],
           Object.assign({}, outsideTeamCity, {
@@ -43,13 +43,13 @@ describe('Aggregator: e2e', () => {
       expect(exists(chromedriverPath)).to.be.true;
     });
 
-    it('should download chromedriver according to the environment param CHROMEDRIVER_VERSION in CI, if exist', () => {
-      const res = test
+    it('should download chromedriver according to the environment param CHROMEDRIVER_VERSION in CI, if exist', async () => {
+      const res = await test
         .setup({
           'protractor.conf.js': '',
           'package.json': fx.packageJson(),
         })
-        .execute(
+        .spawn(
           'test',
           ['--protractor'],
           Object.assign({}, outsideTeamCity, {
@@ -70,10 +70,10 @@ describe('Aggregator: e2e', () => {
       expect(exists(chromedriverPath)).to.be.true;
     });
 
-    it('should support single module structure by default', () => {
-      const res = test
+    it('should support single module structure by default', async () => {
+      const res = await test
         .setup(singleModuleWithJasmine())
-        .execute('test', ['--protractor'], outsideTeamCity);
+        .spawn('test', ['--protractor'], outsideTeamCity);
 
       expect(res.code).to.equal(0);
       expect(res.stdout).to.contain('protractor');
@@ -82,10 +82,10 @@ describe('Aggregator: e2e', () => {
       expect(res.stdout).to.contain('1 spec, 0 failures');
     });
 
-    it('should take a screenshot at the end of a failing test', () => {
-      const res = test
+    it('should take a screenshot at the end of a failing test', async () => {
+      const res = await test
         .setup(singleModuleWithFailingJasmine())
-        .execute('test', ['--protractor'], outsideTeamCity, { silent: true }); // run in silent so that TC won't fail with the screenshot log
+        .spawn('test', ['--protractor'], outsideTeamCity, { silent: true }); // run in silent so that TC won't fail with the screenshot log
 
       expect(res.code).to.equal(1);
       expect(res.stdout).to.contain('protractor');
@@ -93,29 +93,29 @@ describe('Aggregator: e2e', () => {
       expect(res.stdout).to.contain('Screenshot link:');
     });
 
-    it(`should support multiple modules structure and consider clientProjectName configuration`, () => {
-      const res = test
+    it(`should support multiple modules structure and consider clientProjectName configuration`, async () => {
+      const res = await test
         .setup(multipleModuleWithJasmine())
-        .execute('test', ['--protractor'], outsideTeamCity);
+        .spawn('test', ['--protractor'], outsideTeamCity);
       expect(res.code).to.equal(0);
       expect(res.stdout).to.contain('protractor');
       expect(res.stdout).to.contain('1 spec, 0 failures');
     });
 
-    it('should run protractor with mocha', () => {
-      const res = test
+    it('should run protractor with mocha', async () => {
+      const res = await test
         .setup(singleModuleWithMocha())
-        .execute('test', ['--protractor'], outsideTeamCity);
+        .spawn('test', ['--protractor'], outsideTeamCity);
 
       expect(res.code).to.equal(0);
       expect(res.stdout).to.contain('protractor');
       expect(res.stdout).to.contain('1 passing (');
     });
 
-    it('should run protractor with mocha and use TeamCity reporter', () => {
-      const res = test
+    it('should run protractor with mocha and use TeamCity reporter', async () => {
+      const res = await test
         .setup(singleModuleWithMocha())
-        .execute('test', ['--protractor'], insideTeamCity);
+        .spawn('test', ['--protractor'], insideTeamCity);
 
       expect(res.code).to.equal(0);
       expect(res.stdout).to.contain('protractor');
@@ -124,12 +124,12 @@ describe('Aggregator: e2e', () => {
       );
     });
 
-    it('should use babel-register', function() {
+    it('should use babel-register', async function() {
       this.timeout(60000);
 
-      const res = test
+      const res = await test
         .setup(singleModuleWithJasmineAndES6Imports(true))
-        .execute('test', ['--protractor'], outsideTeamCity);
+        .spawn('test', ['--protractor'], outsideTeamCity);
 
       expect(res.code).to.equal(0);
       expect(res.stdout).to.contain('protractor');
@@ -140,37 +140,37 @@ describe('Aggregator: e2e', () => {
       );
     });
 
-    it('should not use babel-register', function() {
+    it('should not use babel-register', async function() {
       this.timeout(60000);
 
-      const res = test
+      const res = await test
         .setup(singleModuleWithJasmineAndES6Imports(false))
-        .execute('test', ['--protractor'], outsideTeamCity);
+        .spawn('test', ['--protractor'], outsideTeamCity);
 
       expect(res.code).to.equal(1);
       expect(res.stdout).to.contain('Unexpected token import');
     });
   });
 
-  it('should not run protractor if protractor.conf is not present', () => {
-    const res = test
+  it('should not run protractor if protractor.conf is not present', async () => {
+    const res = await test
       .setup({
         'package.json': fx.packageJson(),
       })
-      .execute('test', ['--protractor']);
+      .spawn('test', ['--protractor']);
 
     expect(res.code).to.equal(0);
     expect(res.stdout).to.not.contain('protractor');
   });
 
-  it('should support css class selectors with cssModules on', function() {
+  it('should support css class selectors with cssModules on', async function() {
     this.timeout(60000);
 
-    test
+    await test
       .setup(singleModuleWithCssModules())
-      .execute('build', [], getMockedCI({ ci: false }));
+      .spawn('build', [], getMockedCI({ ci: false }));
 
-    const res = test.execute(
+    const res = await test.spawn(
       'test',
       ['--protractor'],
       getMockedCI({ ci: false }),
@@ -179,14 +179,14 @@ describe('Aggregator: e2e', () => {
     expect(res.code).to.equal(0);
   });
 
-  it('should pre-process sass with cssModules on', function() {
+  it('should pre-process sass with cssModules on', async function() {
     this.timeout(60000);
 
-    test
+    await test
       .setup(singleModuleWithCssModulesAndSass())
-      .execute('build', [], getMockedCI({ ci: false }));
+      .spawn('build', [], getMockedCI({ ci: false }));
 
-    const res = test.execute(
+    const res = await test.spawn(
       'test',
       ['--protractor'],
       getMockedCI({ ci: false }),
@@ -195,26 +195,28 @@ describe('Aggregator: e2e', () => {
     expect(res.code).to.equal(0);
   });
 
-  it("should extend project's beforeLaunch", function() {
+  it("should extend project's beforeLaunch", async function() {
     this.timeout(60000);
-    const res = test
+
+    const res = await test
       .setup(singleModuleWithBeforeLaunch())
-      .execute('test', ['--protractor'], outsideTeamCity);
+      .spawn('test', ['--protractor'], outsideTeamCity);
 
     expect(res.code).to.equal(0);
     expect(res.stdout).to.contain('protractor');
     expect(res.stdout).to.contain('1 spec, 0 failures');
   });
 
-  it("should extend project's afterLaunch", function() {
+  it("should extend project's afterLaunch", async function() {
     this.timeout(60000);
-    const res = test
+
+    const res = await test
       .setup({
         'dist/test/some.e2e.js': `it('some test', () => {})`,
         'package.json': fx.packageJson(),
         'protractor.conf.js': fx.protractorConfWithAfterLaunch(),
       })
-      .execute('test', ['--protractor'], outsideTeamCity);
+      .spawn('test', ['--protractor'], outsideTeamCity);
 
     expect(res.code).to.equal(0);
     expect(res.stdout).to.contain('afterLaunch hook');

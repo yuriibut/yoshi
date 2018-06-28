@@ -2,6 +2,7 @@ const fs = require('fs');
 const rimraf = require('rimraf');
 const process = require('process');
 const path = require('path');
+const execa = require('execa');
 const sh = require('shelljs');
 const spawn = require('cross-spawn');
 const stripAnsi = require('strip-ansi');
@@ -43,33 +44,38 @@ class Test {
     return this;
   }
 
-  spawn(command, options, environment = {}) {
+  spawn(command, options = [], environment = {}) {
     if (this.hasTmp()) {
       try {
-        options = options || [];
         options = Array.isArray(options) ? options : options.split(' ');
 
         const env = Object.assign({}, this.env, environment);
-        this.child = spawn(
+
+        this.child = execa(
           'node',
-          [`${this.script}`, `${command}`].concat(options),
+          [`${this.script}`, `${command}`, ...options],
           {
             cwd: this.tmp,
             env,
           },
         );
+
         this.child.stdout.on('data', buffer => {
           if (!this.silent) {
             console.log(buffer.toString());
           }
+
           this.stdout += stripAnsi(buffer.toString());
         });
+
         this.child.stderr.on('data', buffer => {
           if (!this.silent) {
             console.log(buffer.toString());
           }
+
           this.stderr += stripAnsi(buffer.toString());
         });
+
         return this.child;
       } catch (e) {
         console.log(`Error running ${this.script} ${command}: ${e}`); // TODO: Use logger?
@@ -82,25 +88,6 @@ class Test {
   verbose() {
     this.silent = false;
     return this;
-  }
-
-  execute(command, cliArgs = [], environment = {}, execOptions = {}) {
-    const args = [command].concat(cliArgs).join(' ');
-    const env = Object.assign({}, this.env, environment);
-    const options = Object.assign(
-      {},
-      { cwd: this.tmp, env, silent: this.silent },
-      execOptions,
-    );
-
-    if (this.hasTmp()) {
-      const result = sh.exec(`node '${this.script}' ${args}`, options);
-
-      return Object.assign(result, {
-        stdout: stripAnsi(result.stdout),
-        stderr: stripAnsi(result.stderr),
-      });
-    }
   }
 
   teardown() {

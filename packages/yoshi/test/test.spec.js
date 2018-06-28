@@ -9,9 +9,10 @@ describe('Aggregator: Test', () => {
     beforeEach(() => (test = tp.create()));
     afterEach(() => test.teardown());
 
-    it('should pass with exit code 0 with mocha as default', function() {
+    it('should pass with exit code 0 with mocha as default', async function() {
       this.timeout(40000);
-      const res = test
+
+      const res = await test
         .setup({
           'test/component.spec.js': 'it.only("pass", () => 1);',
           'protractor.conf.js': `
@@ -39,7 +40,8 @@ describe('Aggregator: Test', () => {
           `,
           'package.json': fx.packageJson(),
         })
-        .execute('test', undefined, outsideTeamCity);
+        .spawn('test', undefined, outsideTeamCity);
+
       expect(res.code).to.equal(0);
       expect(res.stdout).to.contain('1 passing');
       expect(res.stdout).to.contains('protractor');
@@ -51,9 +53,10 @@ describe('Aggregator: Test', () => {
     let test;
     beforeEach(() => (test = tp.create()));
     afterEach(() => test.teardown());
+
     it(`should run protractor with express that serves static files from client dep
-        if protractor.conf is present, according to dist/test/**/*.e2e.js glob`, () => {
-      const res = test
+        if protractor.conf is present, according to dist/test/**/*.e2e.js glob`, async () => {
+      const res = await test
         .setup({
           'protractor.conf.js': fx.protractorConf({ cdnPort: 3200 }),
           'dist/test/some.e2e.js': `
@@ -66,7 +69,7 @@ describe('Aggregator: Test', () => {
           'node_modules/client/dist/app.bundle.js': `document.body.innerHTML = "roy";`,
           'package.json': fx.packageJson({ clientProjectName: 'client' }),
         })
-        .execute('test', ['--protractor']);
+        .spawn('test', ['--protractor']);
 
       expect(res.code).to.equal(0);
       expect(res.stdout).to.contains('protractor');
@@ -75,8 +78,8 @@ describe('Aggregator: Test', () => {
       expect(res.stdout).to.contain('1 spec, 0 failures');
     });
 
-    it(`should use protractor-browser-logs and fail if there are any console errors on the browser`, () => {
-      const res = test
+    it(`should use protractor-browser-logs and fail if there are any console errors on the browser`, async () => {
+      const res = await test
         .setup({
           'protractor.conf.js': fx.protractorConf({ cdnPort: 3200 }),
           'dist/test/some.e2e.js': `
@@ -88,15 +91,15 @@ describe('Aggregator: Test', () => {
           'node_modules/client/dist/app.bundle.js': `console.error('some-error')`,
           'package.json': fx.packageJson({ clientProjectName: 'client' }),
         })
-        .execute('test', ['--protractor'], { PROTRACTOR_BROWSER_LOGS: 'true' });
+        .spawn('test', ['--protractor'], { PROTRACTOR_BROWSER_LOGS: 'true' });
 
       expect(res.code).to.equal(1);
       expect(res.stdout).to.contains('UNEXPECTED MESSAGE');
       expect(res.stdout).to.contain('1 spec, 1 failure');
     });
 
-    it(`should not use protractor-browser-logs when FT is off`, () => {
-      const res = test
+    it(`should not use protractor-browser-logs when FT is off`, async () => {
+      const res = await test
         .setup({
           'protractor.conf.js': fx.protractorConf({ cdnPort: 3200 }),
           'dist/test/some.e2e.js': `
@@ -108,7 +111,7 @@ describe('Aggregator: Test', () => {
           'node_modules/client/dist/app.bundle.js': `console.error('some-error')`,
           'package.json': fx.packageJson({ clientProjectName: 'client' }),
         })
-        .execute('test', ['--protractor'], {
+        .spawn('test', ['--protractor'], {
           PROTRACTOR_BROWSER_LOGS: 'false',
         });
 
@@ -119,12 +122,12 @@ describe('Aggregator: Test', () => {
       expect(res.stdout).to.contain('1 spec, 0 failures');
     });
 
-    it('should not run protractor if protractor.conf is not present', () => {
-      const res = test
+    it('should not run protractor if protractor.conf is not present', async () => {
+      const res = await test
         .setup({
           'package.json': fx.packageJson(),
         })
-        .execute('test', ['--protractor']);
+        .spawn('test', ['--protractor']);
 
       expect(res.code).to.equal(0);
       expect(res.stdout).to.not.contains('protractor');
@@ -134,9 +137,10 @@ describe('Aggregator: Test', () => {
   describe('--jest', () => {
     let test;
     let res;
-    before(() => {
+
+    before(async () => {
       test = tp.create();
-      res = test
+      res = await test
         .setup({
           '__tests__/foo.js': `
             describe('Foo', () => {
@@ -205,8 +209,9 @@ describe('Aggregator: Test', () => {
             }
           }`,
         })
-        .execute('test', ['--jest'], insideTeamCity);
+        .spawn('test', ['--jest'], insideTeamCity);
     });
+
     after(() => test.teardown());
 
     it('should pass with exit code 0', () => {
@@ -239,9 +244,9 @@ describe('Aggregator: Test', () => {
       });
     });
 
-    it('should fail with exit code 1', () => {
+    it('should fail with exit code 1', async () => {
       const test = tp.create();
-      const res = test
+      const res = await test
         .setup({
           '__tests__/foo.js': `
             describe('Foo', () => {
@@ -259,16 +264,16 @@ describe('Aggregator: Test', () => {
             };`,
           'package.json': fx.packageJson(),
         })
-        .execute('test', ['--jest']);
+        .spawn('test', ['--jest']);
 
       expect(res.code).to.equal(1);
       expect(res.stderr).to.contain('1 failed');
       test.teardown();
     });
 
-    it('should output test coverage when --coverage is passed', () => {
+    it('should output test coverage when --coverage is passed', async () => {
       const test = tp.create();
-      const res = test
+      const res = await test
         .setup({
           '__tests__/foo.js': `
             describe('Foo', () => {
@@ -277,7 +282,7 @@ describe('Aggregator: Test', () => {
           `,
           'package.json': fx.packageJson(),
         })
-        .execute('test', ['--jest', '--coverage']);
+        .spawn('test', ['--jest', '--coverage']);
 
       expect(res.code).to.equal(0);
       expect(res.stdout).to.contain(
@@ -292,9 +297,9 @@ describe('Aggregator: Test', () => {
     let res;
     const imageExtensions = ['png', 'svg', 'jpg', 'jpeg', 'gif'];
     const audioExtensions = ['wav', 'mp3'];
-    before(() => {
+    before(async () => {
       test = tp.create();
-      res = test
+      res = await test
         .setup({
           ...setupMediaFilesExtensions(imageExtensions, 'image'),
           ...setupMediaFilesExtensions(audioExtensions, 'audio'),
@@ -365,8 +370,9 @@ describe('Aggregator: Test', () => {
             }
           }`,
         })
-        .execute('test', ['--mocha']);
+        .spawn('test', ['--mocha']);
     });
+
     after(() => test.teardown());
 
     it('should pass with exit code 0', () => {
@@ -410,63 +416,63 @@ describe('Aggregator: Test', () => {
       beforeEach(() => (customTest = tp.create()));
       afterEach(() => customTest.teardown());
 
-      it('should fail with exit code 1', function() {
+      it('should fail with exit code 1', async function() {
         this.timeout(60000);
 
-        const res = customTest
+        const res = await customTest
           .setup({
             'test/some.spec.js': `it("fail", () => { throw new Error() });`,
             'package.json': fx.packageJson(),
           })
-          .execute('test', ['--mocha'], outsideTeamCity);
+          .spawn('test', ['--mocha'], outsideTeamCity);
 
         expect(res.code).to.be.above(0);
         expect(res.stdout).to.contain('1 failing');
       });
 
-      it('should run specs from test/app/src by default', () => {
-        const res = customTest
+      it('should run specs from test/app/src by default', async () => {
+        const res = await customTest
           .setup({
             'test/bla/comp.spec.js': `it("pass", () => 1);`,
             'app/bla/comp.spec.js': `it("pass", () => 1);`,
             'src/bla/comp.spec.js': `it("pass", () => 1);`,
             'package.json': fx.packageJson(),
           })
-          .execute('test', ['--mocha'], outsideTeamCity);
+          .spawn('test', ['--mocha'], outsideTeamCity);
 
         expect(res.code).to.equal(0);
         expect(res.stdout).to.contain('3 passing');
       });
 
-      it('should use the right reporter when running inside TeamCity', () => {
-        const res = customTest
+      it('should use the right reporter when running inside TeamCity', async () => {
+        const res = await customTest
           .setup({
             'test/some.spec.js': `it.only("pass", () => 1);`,
             'package.json': fx.packageJson(),
           })
-          .execute('test', ['--mocha'], insideTeamCity);
+          .spawn('test', ['--mocha'], insideTeamCity);
         expect(res.stdout).to.contain('##teamcity[');
       });
 
-      it('should use the right reporter when running outside TeamCity', () => {
-        const res = customTest
+      it('should use the right reporter when running outside TeamCity', async () => {
+        const res = await customTest
           .setup({
             'test/some.spec.js': `it.only("pass", () => 1);`,
             'package.json': fx.packageJson(),
           })
-          .execute('test', ['--mocha'], outsideTeamCity);
+          .spawn('test', ['--mocha'], outsideTeamCity);
 
         expect(res.code).to.equal(0);
         expect(res.stdout).to.contain('▬▬▬▬▬▬▬▬▬▬▬▬▬');
       });
 
-      it('should use a custom reporter when requested', () => {
-        const res = customTest
+      it('should use a custom reporter when requested', async () => {
+        const res = await customTest
           .setup({
             'test/some.spec.js': `it.only("pass", () => 1);`,
             'package.json': fx.packageJson(),
           })
-          .execute(
+          .spawn(
             'test',
             ['--mocha'],
             Object.assign(
@@ -481,28 +487,28 @@ describe('Aggregator: Test', () => {
         expect(res.stdout).to.contain('✈');
       });
 
-      it('should not transpile tests if `transpileTests` is `false`', () => {
-        const res = customTest
+      it('should not transpile tests if `transpileTests` is `false`', async () => {
+        const res = await customTest
           .setup({
             'test/bar.js': 'export default 5;',
             'test/some.spec.js': `import foo from './bar';`,
             'package.json': fx.packageJson({ transpileTests: false }),
             '.babelrc': JSON.stringify({ presets: ['yoshi'] }),
           })
-          .execute('test', ['--mocha']);
+          .spawn('test', ['--mocha']);
 
         expect(res.code).to.equal(1);
         expect(res.stderr).to.contain('Unexpected token import');
       });
 
-      it('should output test coverage when --coverage is passed', () => {
-        const res = customTest
+      it('should output test coverage when --coverage is passed', async () => {
+        const res = await customTest
           .setup({
             'test/some.spec.js': `it.only("pass", () => 1);`,
             'package.json': fx.packageJson(),
           })
           .verbose()
-          .execute('test', ['--mocha', '--coverage']);
+          .spawn('test', ['--mocha', '--coverage']);
 
         expect(res.code).to.equal(0);
         expect(res.stdout).to.contain(
@@ -511,8 +517,8 @@ describe('Aggregator: Test', () => {
       });
 
       describe('with babel-register', () => {
-        it('should transpile explicitly configured externalUnprocessedModules', function() {
-          const res = customTest
+        it('should transpile explicitly configured externalUnprocessedModules', async function() {
+          const res = await customTest
             .setup({
               '.babelrc': `{"plugins": ["${require.resolve(
                 'babel-plugin-transform-es2015-modules-commonjs',
@@ -527,14 +533,14 @@ describe('Aggregator: Test', () => {
                 }
               }`,
             })
-            .execute('test', ['--mocha'], outsideTeamCity);
+            .spawn('test', ['--mocha'], outsideTeamCity);
 
           expect(res.code).to.equal(0);
           expect(res.stdout).to.contain('1 passing');
         });
 
-        it('should transpile es modules w/o any configurations', () => {
-          const res = customTest
+        it('should transpile es modules w/o any configurations', async () => {
+          const res = await customTest
             .setup({
               '.babelrc': '{}',
               'test/some.spec.js': `
@@ -545,43 +551,43 @@ describe('Aggregator: Test', () => {
             `,
               'package.json': fx.packageJson(),
             })
-            .execute('test', ['--mocha'], outsideTeamCity);
+            .spawn('test', ['--mocha'], outsideTeamCity);
 
           expect(res.code).to.equal(0);
           expect(res.stdout).to.contain('1 passing');
         });
       });
 
-      it('should run typescript tests with runtime compilation and force commonjs module system', () => {
-        const res = customTest
+      it('should run typescript tests with runtime compilation and force commonjs module system', async () => {
+        const res = await customTest
           .setup({
             'tsconfig.json': fx.tsconfig(),
             'test/some.spec.ts': `import * as usageOfFS from 'fs'; it.only("pass", () => !!usageOfFS);`,
             'package.json': fx.packageJson(),
           })
-          .execute('test', ['--mocha'], outsideTeamCity);
+          .spawn('test', ['--mocha'], outsideTeamCity);
 
         expect(res.code).to.equal(0);
         expect(res.stdout).to.contain('1 passing');
       });
 
-      it('should support dynamic imports syntax for node js', () => {
-        const res = customTest
+      it('should support dynamic imports syntax for node js', async () => {
+        const res = await customTest
           .setup({
             'tsconfig.json': fx.tsconfig(),
             'test/foo.ts': `console.log('hello');`,
             'test/some.spec.ts': `it.only("pass", async () => { await import('./foo'); });`,
             'package.json': fx.packageJson(),
           })
-          .execute('test', ['--mocha'], outsideTeamCity);
+          .spawn('test', ['--mocha'], outsideTeamCity);
 
         expect(res.code).to.equal(0);
         expect(res.stdout).to.contain('1 passing');
         expect(res.stdout).to.contain('hello');
       });
 
-      it('should not transpile tests if no tsconfig/.babelrc/babel configuration', () => {
-        const res = customTest
+      it('should not transpile tests if no tsconfig/.babelrc/babel configuration', async () => {
+        const res = await customTest
           .setup({
             'test/some.js': 'export default x => x',
             'test/some.spec.js': `import identity from './some'; it.only("pass", () => 1);`,
@@ -590,15 +596,15 @@ describe('Aggregator: Test', () => {
                 "version": "1.0.4"
               }`,
           })
-          .execute('test', ['--mocha']);
+          .spawn('test', ['--mocha']);
 
         expect(res.code).to.equal(1);
         expect(res.stderr).to.contain('Unexpected token import');
       });
 
       describe('stylable integration', () => {
-        it('should transform stylable stylesheets', () => {
-          const res = customTest
+        it('should transform stylable stylesheets', async () => {
+          const res = await customTest
             .setup({
               'src/main.st.css': `
                 .someclass {
@@ -614,7 +620,7 @@ describe('Aggregator: Test', () => {
                 })`,
               'package.json': fx.packageJson(),
             })
-            .execute('test', ['--mocha'], outsideTeamCity);
+            .spawn('test', ['--mocha'], outsideTeamCity);
 
           expect(res.code).to.equal(0);
           expect(res.stdout).to.contain('1 passing');
@@ -642,7 +648,7 @@ describe('Aggregator: Test', () => {
     let test;
     let res;
 
-    before(() => {
+    before(async () => {
       test = tp.create();
 
       // 'src/client.spec.js': `require('./foo.css'); it('pass', function () {expect(1).toBe(1);});`,
@@ -650,7 +656,7 @@ describe('Aggregator: Test', () => {
       //   'node_modules/bar/bar.scss': '.bar{color:red}',
       //   'karma.conf.js': fx.karmaWithJasmine(),
       //   'package.json': fx.packageJson()
-      res = test
+      res = await test
         .setup({
           'karma.conf.js':
             'module.exports = { browsers: ["PhantomJS"], frameworks: ["jasmine"], plugins: [require("karma-jasmine"), require("karma-phantomjs-launcher")], files: ["a.js", "test.spec.js"], exclude: ["excluded.spec.js"]}',
@@ -683,8 +689,9 @@ describe('Aggregator: Test', () => {
           }),
           'pom.xml': fx.pom(),
         })
-        .execute('test', ['--karma'], outsideTeamCity);
+        .spawn('test', ['--karma'], outsideTeamCity);
     });
+
     after(() => test.teardown());
 
     describe('with jasmine configuration', () => {
@@ -729,8 +736,8 @@ describe('Aggregator: Test', () => {
       beforeEach(() => (customTest = tp.create()));
       afterEach(() => customTest.teardown());
 
-      it('should consider custom specs.browser globs if configured', () => {
-        const res = test
+      it('should consider custom specs.browser globs if configured', async () => {
+        const res = await test
           .setup({
             'some/other/app.glob.js':
               'it("pass", function () { expect(1).toBe(1); });',
@@ -744,7 +751,7 @@ describe('Aggregator: Test', () => {
               },
             }),
           })
-          .execute('test', ['--karma']);
+          .spawn('test', ['--karma']);
 
         expect(res.code).to.equal(0);
         expect(test.content('dist/specs.bundle.js')).to.contain(
@@ -755,8 +762,8 @@ describe('Aggregator: Test', () => {
         );
       });
 
-      it('should allow import sass from node_modules', () => {
-        const res = customTest
+      it('should allow import sass from node_modules', async () => {
+        const res = await customTest
           .setup({
             'src/client.spec.js': `require('./foo.css'); it('pass', function () {expect(1).toBe(1);});`,
             'src/foo.css': '@import "bar/bar";',
@@ -764,13 +771,13 @@ describe('Aggregator: Test', () => {
             'karma.conf.js': fx.karmaWithJasmine(),
             'package.json': fx.packageJson(),
           })
-          .execute('test', ['--karma']);
+          .spawn('test', ['--karma']);
 
         expect(res.code).to.equal(0);
       });
 
-      it('should support TPA style params', () => {
-        const res = customTest
+      it('should support TPA style params', async () => {
+        const res = await customTest
           .setup({
             'src/client.spec.js': `require('./foo.css'); it('pass', function () {expect(1).toBe(1);});`,
             'src/foo.css':
@@ -780,18 +787,19 @@ describe('Aggregator: Test', () => {
               tpaStyle: true,
             }),
           })
-          .execute('test', ['--karma']);
+          .spawn('test', ['--karma']);
+
         expect(res.code).to.equal(0);
       });
 
-      it('should exit with code 1 in case webpack fails', () => {
-        const res = customTest
+      it('should exit with code 1 in case webpack fails', async () => {
+        const res = await customTest
           .setup({
             'src/client.spec.js': `require('./ballsack');`,
             'karma.conf.js': fx.karmaWithJasmine(),
             'package.json': fx.packageJson(),
           })
-          .execute('test', ['--karma']);
+          .spawn('test', ['--karma']);
 
         expect(res.code).to.equal(1);
         expect(res.stderr).to.contain(
@@ -800,8 +808,8 @@ describe('Aggregator: Test', () => {
         expect(res.stdout).not.to.contain(`Finished 'karma'`);
       });
 
-      it('should fail with exit code 1', () => {
-        const res = customTest
+      it('should fail with exit code 1', async () => {
+        const res = await customTest
           .setup({
             'src/test.spec.js':
               'it("fail", function () { expect(1).toBe(2); });',
@@ -809,7 +817,7 @@ describe('Aggregator: Test', () => {
             'package.json': fx.packageJson(),
             'pom.xml': fx.pom(),
           })
-          .execute('test', ['--karma'], outsideTeamCity);
+          .spawn('test', ['--karma'], outsideTeamCity);
 
         expect(res.code).to.equal(1);
         expect(res.stdout).to.contain(`Failed 'karma'`);
@@ -817,8 +825,8 @@ describe('Aggregator: Test', () => {
       });
 
       describe('with browser (chrome) configurations and stylable', () => {
-        it('should pass with exit code 0, not run phantom and understand "st.css" files', () => {
-          const res = customTest
+        it('should pass with exit code 0, not run phantom and understand "st.css" files', async () => {
+          const res = await customTest
             .setup({
               'src/test.spec.js':
                 'require("./style.st.css"), it("pass", function () {});',
@@ -830,7 +838,7 @@ describe('Aggregator: Test', () => {
                 'module.exports = {browsers: ["ChromeHeadless"], frameworks: ["mocha"], plugins: [require("karma-mocha"),	require("karma-chrome-launcher")]}',
               'package.json': fx.packageJson(),
             })
-            .execute('test', ['--karma'], outsideTeamCity);
+            .spawn('test', ['--karma'], outsideTeamCity);
 
           expect(res.code).to.equal(0);
           expect(res.stdout).to.contain(`browser Chrome`);
@@ -843,10 +851,10 @@ describe('Aggregator: Test', () => {
       });
 
       describe('with mocha and chrome configuration', () => {
-        it('should pass with exit code 0', () => {
-          const res = customTest
+        it('should pass with exit code 0', async () => {
+          const res = await customTest
             .setup(passingMochaTest())
-            .execute('test', ['--karma'], outsideTeamCity);
+            .spawn('test', ['--karma'], outsideTeamCity);
 
           expect(res.code).to.equal(0);
           expect(res.stdout)
@@ -854,10 +862,10 @@ describe('Aggregator: Test', () => {
             .and.contain('Executed 1 of 1 SUCCESS');
         });
 
-        it('should use appropriate reporter for TeamCity', () => {
-          const res = customTest
+        it('should use appropriate reporter for TeamCity', async () => {
+          const res = await customTest
             .setup(passingMochaTest())
-            .execute('test', ['--karma'], insideTeamCity);
+            .spawn('test', ['--karma'], insideTeamCity);
 
           expect(res.code).to.equal(0);
           expect(res.stdout)

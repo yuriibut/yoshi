@@ -23,39 +23,39 @@ describe('test --jasmine', () => {
     return killSpawnProcessAndHidChildren(pid);
   });
 
-  it('should pass with exit code 0', () => {
-    const res = test.setup(passingProject()).execute('test', ['--jasmine']);
+  it('should pass with exit code 0', async () => {
+    const res = await test.setup(passingProject()).spawn('test', ['--jasmine']);
 
     expect(res.code).to.equal(0);
     expect(res.stdout).to.contain('1 spec, 0 failures');
   });
 
-  it('should pass with exit code 1', () => {
-    const res = test.setup(failingProject()).execute('test', ['--jasmine']);
+  it('should pass with exit code 1', async () => {
+    const res = await test.setup(failingProject()).spawn('test', ['--jasmine']);
 
     expect(res.code).to.equal(1);
     expect(res.stdout).to.contain('1 spec, 1 failure');
   });
 
-  it('should not transpile tests if `transpileTests` is `false`', () => {
-    const res = test
+  it('should not transpile tests if `transpileTests` is `false`', async () => {
+    const res = await test
       .setup({
         'test/bar.js': 'export default 5;',
         'test/some.spec.js': `import foo from './bar';`,
         'package.json': fx.packageJson({ transpileTests: false }),
         '.babelrc': JSON.stringify({ presets: ['yoshi'] }),
       })
-      .execute('test', ['--jasmine']);
+      .spawn('test', ['--jasmine']);
 
     expect(res.code).to.equal(1);
     expect(res.stderr).to.contain('Unexpected token import');
   });
 
-  it('should output test coverage when --coverage is passed', () => {
-    const res = test
+  it('should output test coverage when --coverage is passed', async () => {
+    const res = await test
       .setup(passingProject())
       .verbose()
-      .execute('test', ['--jasmine', '--coverage']);
+      .spawn('test', ['--jasmine', '--coverage']);
 
     expect(res.code).to.equal(0);
     expect(res.stdout).to.contain(
@@ -63,8 +63,8 @@ describe('test --jasmine', () => {
     );
   });
 
-  it('should consider custom globs if configured', () => {
-    const res = test
+  it('should consider custom globs if configured', async () => {
+    const res = await test
       .setup({
         'some/other.glob.js': `it("should pass", () => 1);`,
         'package.json': fx.packageJson({
@@ -73,16 +73,16 @@ describe('test --jasmine', () => {
           },
         }),
       })
-      .execute('test', ['--jasmine']);
+      .spawn('test', ['--jasmine']);
 
     expect(res.code).to.equal(0);
     expect(res.stdout).to.contain('1 spec, 0 failures');
   });
 
-  it('should use the right reporter when running inside TeamCity', () => {
-    const res = test
+  it('should use the right reporter when running inside TeamCity', async () => {
+    const res = await test
       .setup(passingProject())
-      .execute('test', ['--jasmine'], insideTeamCity);
+      .spawn('test', ['--jasmine'], insideTeamCity);
 
     expect(res.code).to.equal(0);
     expect(res.stdout).to.contain(
@@ -100,30 +100,30 @@ describe('test --jasmine', () => {
       .then(() => checkStdoutContains(test, '2 specs, 1 failure'));
   });
 
-  it('should run tests in typescript', () => {
-    const res = test
+  it('should run tests in typescript', async () => {
+    const res = await test
       .setup({
         'tsconfig.json': fx.tsconfig(),
         'test/some.spec.ts': `declare var it: any; it("pass", () => 1);`,
         'package.json': fx.packageJson(),
       })
-      .execute('test', ['--jasmine']);
+      .spawn('test', ['--jasmine']);
 
     expect(res.code).to.equal(0);
   });
 
-  it('should load helpers', () => {
-    const res = test
+  it('should load helpers', async () => {
+    const res = await test
       .setup(passingProjectWithHelper())
-      .execute('test', ['--jasmine']);
+      .spawn('test', ['--jasmine']);
 
     expect(res.code).to.equal(0);
     expect(res.stdout).to.contain('1 spec, 0 failures');
     expect(res.stdout).to.contain('a helper file was loaded');
   });
 
-  it('should use "test/jasmine.json" to configure jasmine if exist', () => {
-    const res = test
+  it('should use "test/jasmine.json" to configure jasmine if exist', async () => {
+    const res = await test
       .setup({
         'test/some.spec.js': passingTest(),
         'different/some.spec.js': failingTest(),
@@ -134,7 +134,7 @@ describe('test --jasmine', () => {
         }),
         'package.json': fx.packageJson(),
       })
-      .execute('test', ['--jasmine']);
+      .spawn('test', ['--jasmine']);
 
     expect(res.code).to.equal(1);
     expect(res.stdout).to.not.contain('1 spec, 0 failures');
