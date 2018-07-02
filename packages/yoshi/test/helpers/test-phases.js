@@ -76,7 +76,16 @@ class Test {
           this.stderr += stripAnsi(buffer.toString());
         });
 
-        return this.child;
+        return this.child
+          .catch(error => {
+            return error;
+          })
+          .then(result => {
+            return Object.assign(result, {
+              stdout: stripAnsi(result.stdout),
+              stderr: stripAnsi(result.stderr),
+            });
+          });
       } catch (e) {
         console.log(`Error running ${this.script} ${command}: ${e}`); // TODO: Use logger?
         return null;
