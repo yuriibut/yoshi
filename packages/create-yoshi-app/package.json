@@ -1,0 +1,22 @@
+{
+  "name": "create-yoshi-app",
+  "version": "1.0.0",
+  "description": "create yoshi powered apps",
+  "keywords": [],
+  "author": "Ran Yitzhaki & Ronen Amiel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "create-yoshi-app": "create-yoshi-app.js"
+  },
+  "dependencies": {
+    "git-config": "^0.0.7",
+    "glob": "^7.1.2",
+    "mkdirp": "^0.5.1",
+    "prompts": "^0.1.10"
+  },
+  "devDependencies": {},
+  "license": "ISC"
+}

@@ -3,7 +3,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "postinstall": "npm run bootstrap",
-    "test": "lerna exec --concurrency 1 -- npm test",
+    "test": "npm test --prefix packages/yoshi",
+    "e2e": "node scripts/e2e.js",
     "build": "eslint .",
     "customPublish": "lerna exec --concurrency 1 -- npm run customPublish",
     "createVersion": "node scripts/createVersion"
