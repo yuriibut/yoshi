@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
-const replaceTemplates = require('./replaceTemplates');
 const mkdirp = require('mkdirp');
+const replaceTemplates = require('./replaceTemplates');
 
 module.exports = (
   {
