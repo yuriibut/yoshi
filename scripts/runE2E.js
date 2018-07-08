@@ -2,6 +2,7 @@
 
 const argv = require('minimist')(process.argv.slice(2));
 const Mocha = require('mocha');
+const { getMochaReporter } = require('../packages/yoshi/src/utils.js');
 
 const testFile = require.resolve('../tests/e2e.js');
 
@@ -23,6 +24,7 @@ if (focusProjectPattern) {
 // Instantiate a Mocha instance.
 const mocha = new Mocha({
   timeout: 180000,
+  reporter: getMochaReporter(),
 });
 
 mocha.addFile(testFile);
