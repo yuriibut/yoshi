@@ -261,39 +261,26 @@ module.exports = runner.command(
       if (isBabelProject()) {
         watch(
           {
-            pattern: [
-              path.join(globs.base(), globs.allCodeFiles()),
-              'index.js',
-            ],
+            pattern: globs.babel()
           },
           debounce(
             async changedFilePath => {
-              if (isCommonFile(changedFilePath)) {
-                await babel({
-                  pattern: changedFilePath,
-                  target: 'dist',
-                  sourceMaps: true,
-                });
-                await appServer();
-              } else if (isClientFile(changedFilePath)) {
-                await babel({
-                  pattern: changedFilePath,
-                  target: 'dist',
-                  sourceMaps: true,
-                });
-              } else if (isServerFile(changedFilePath)) {
-                await appServer();
-              }
+              await babel({
+                pattern: changedFilePath,
+                target: 'dist',
+                sourceMaps: true
+              });
+              await appServer();
             },
             WATCH_DEBOUNCE_MS,
-            { maxWait: WATCH_DEBOUNCE_MAXWAIT_MS },
-          ),
+            { maxWait: WATCH_DEBOUNCE_MAXWAIT_MS }
+          )
         );
 
         await babel({
-          pattern: [path.join(globs.base(), globs.allCodeFiles()), 'index.js'],
+          pattern: globs.babel(),
           target: 'dist',
-          sourceMaps: true,
+          sourceMaps: true
         });
         return appServer();
       }
@@ -305,15 +292,3 @@ module.exports = runner.command(
   },
   { persistent: true },
 );
-
-function isCommonFile(filePath) {
-  return minimatch(filePath, globs.commonFiles());
-}
-
-function isClientFile(filePath) {
-  return minimatch(filePath, globs.clientFiles());
-}
-
-function isServerFile(filePath) {
-  return minimatch(filePath, globs.serverFiles());
-}
