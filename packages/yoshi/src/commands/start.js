@@ -262,7 +262,7 @@ module.exports = runner.command(
 
       if (isBabelProject()) {
         watch(
-          { pattern: [path.join(globs.base(), '**', '*.js{,x}'), 'index.js'] },
+          { pattern: globs.babel() },
           async changed => {
             await babel({ pattern: changed, target: 'dist', sourceMaps: true });
             await appServer();
@@ -270,7 +270,7 @@ module.exports = runner.command(
         );
 
         await babel({
-          pattern: [path.join(globs.base(), '**', '*.js{,x}'), 'index.js'],
+          pattern: globs.babel(),
           target: 'dist',
           sourceMaps: true,
         });
