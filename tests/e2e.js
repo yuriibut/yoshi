@@ -6,7 +6,7 @@ const execa = require('execa');
 const chalk = require('chalk');
 const { generateProject } = require('../packages/create-yoshi-app/src/index');
 
-// true means showing the output of npm install
+// verbose logs and output
 const verbose = process.env.VERBOSE_TESTS;
 // A regex pattern to run a focus test on the matched projects types
 const focusProjectPattern = process.env.FOCUS_PATTERN;
