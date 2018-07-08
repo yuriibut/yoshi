@@ -261,13 +261,10 @@ module.exports = runner.command(
       }
 
       if (isBabelProject()) {
-        watch(
-          { pattern: globs.babel() },
-          async changed => {
-            await babel({ pattern: changed, target: 'dist', sourceMaps: true });
-            await appServer();
-          },
-        );
+        watch({ pattern: globs.babel() }, async changed => {
+          await babel({ pattern: changed, target: 'dist', sourceMaps: true });
+          await appServer();
+        });
 
         await babel({
           pattern: globs.babel(),

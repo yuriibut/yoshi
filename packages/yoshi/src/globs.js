@@ -14,7 +14,11 @@ module.exports = {
   assetsBase: () => assetsBase,
   assetsLegacyBase: () => assetsLegacyBase,
   statics: () => statics,
-  babel: () => [path.join(base, '*.js{,x}'), path.join(base, '!(client)', '**', '*.js{,x}'), 'index.js'],
+  babel: () => [
+    path.join(base, '*.js{,x}'),
+    path.join(base, '!(client)', '**', '*.js{,x}'),
+    'index.js',
+  ],
   specs: () => `${base}/**/*.+(spec|it).+(js|ts){,x}`,
   e2e: () => `${test}/**/*.e2e.{js,ts}`,
   testFilesWatch: () => [path.join(base, '**', '*.(ts|js){,x}'), 'index.js'],
