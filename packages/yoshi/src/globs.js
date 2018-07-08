@@ -7,7 +7,7 @@ const test = 'test';
 const base = `{app,src,bin,${test},testkit,stories}`;
 const assetsLegacyBase = `{app,bin,${test},testkit,stories}`;
 const assetsBase = 'src';
-const codeFiles = '*.(js|ts){,x}';
+const codeFiles = '*.{js,ts}{,x}';
 
 module.exports = {
   base: () => base,
