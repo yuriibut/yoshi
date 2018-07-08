@@ -15,9 +15,7 @@ module.exports = (
   },
   workingDir,
 ) => {
-  const templateName =
-    projectType + (transpiler === 'typescript' ? '-typescript' : '');
-  const templatePath = path.join(__dirname, '../templates', templateName);
+  const templatePath = path.join(__dirname, '../templates', projectType);
 
   const filesPaths = glob.sync('**/*', {
     cwd: templatePath,

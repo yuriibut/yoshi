@@ -3,33 +3,59 @@ const path = require('path');
 const tempy = require('tempy');
 const expect = require('expect');
 const execa = require('execa');
+const chalk = require('chalk');
+const { generateProject } = require('../packages/create-yoshi-app/src/index');
+
+// true means showing the output of npm install
+const verbose = process.env.VERBOSE_TESTS;
+// A regex pattern to run a focus test on the matched projects types
+const focusProjectPattern = process.env.FOCUS_PATTERN;
+
+verbose && console.log(`using ${chalk.yellow('VERBOSE')} mode`);
+
+const stdio = verbose ? 'inherit' : 'pipe';
 
 const projectTypes = fs
   .readdirSync(path.join(__dirname, '../packages/create-yoshi-app/templates'))
-  .filter(projectType => projectType === 'client');
+  .filter(
+    projectType =>
+      !focusProjectPattern ? true : projectType.match(focusProjectPattern),
+  );
 
-const { generateProject } = require('../packages/create-yoshi-app/src/index');
+focusProjectPattern &&
+  console.log(
+    `using the pattern ${chalk.magenta(
+      focusProjectPattern,
+    )} to filter projects`,
+  );
+
+console.log('Running e2e tests for the following projects:\n');
+projectTypes.forEach(type => console.log(`> ${chalk.cyan(type)}`));
 
 const testTemplate = mockedAnswers => {
   describe(`${mockedAnswers.projectType}`, () => {
     const tempDir = tempy.directory();
 
     it(`should create the project`, async () => {
+      verbose && console.log(chalk.cyan(tempDir));
       await generateProject(mockedAnswers, tempDir);
       expect(fs.readdirSync(tempDir).length).toBeGreaterThan(0);
     });
 
     it(`should run npm install`, () => {
-      console.log('running npm install');
+      console.log('running npm install...');
       execa.shellSync('npm install', {
         cwd: tempDir,
-        stdio: 'inherit',
+        stdio,
       });
     });
 
     it(`should run npm test`, () => {
-      console.log('running npm test');
-      execa.shellSync('npm test', { cwd: tempDir, stdio: 'inherit' });
+      console.log('running npm test...');
+      execa.shellSync('npm test', {
+        cwd: tempDir,
+        stdio,
+      });
     });
   });
 };

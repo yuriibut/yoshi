@@ -4,7 +4,7 @@
     "bootstrap": "lerna bootstrap",
     "postinstall": "npm run bootstrap",
     "test": "npm test --prefix packages/yoshi",
-    "e2e": "mocha tests/e2e.js --timeout=180000",
+    "e2e": "node scripts/runE2E.js",
     "build": "eslint .",
     "customPublish": "lerna exec --concurrency 1 -- npm run customPublish",
     "createVersion": "node scripts/createVersion"
@@ -31,6 +31,7 @@
     "lerna": "^2.11.0",
     "lint-staged": "^7.2.0",
     "lodash": "^4.17.10",
+    "mocha": "^5.2.0",
     "prettier": "^1.12.1",
     "prompts": "^0.1.8",
     "rimraf": "^2.6.2",
