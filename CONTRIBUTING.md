@@ -76,6 +76,9 @@ Example: will match `client` & `client-typescript` projects
 ./scripts/runE2E.js client
 ```
 
+## Adding a Template
+Create a directory in  `packages/create-yoshi-app/templates/<template-name>` and another one for typescript `packages/create-yoshi-app/templates/<template-name>-typescript`. It will be tested automatically in the `e2e` suite.
+
 ## Release a New Version
 Start by heading to the [CHANGELOG.md](https://github.com/wix/yoshi/blob/master/CHANGELOG.md) and insert the version's changes. See [commits section](https://github.com/wix/yoshi/commits/master) to verify you haven't missed anything
 
