@@ -25,12 +25,13 @@
     "react": "15.6.1",
     "react-dom": "15.6.1",
     "react-i18next": "~4.6.0",
+    "regenerator-runtime": "^0.11.0",
     "wix-axios-config": "latest",
     "wix-bootstrap-ng": "latest",
     "wix-express-csrf": "latest",
     "wix-express-require-https": "latest",
     "wix-run-mode": "latest",
-    "regenerator-runtime": "^0.11.0"
+    "yoshi-style-dependencies": "^3.0.0"
   },
   "devDependencies": {
     "react-test-renderer": "~15.6.0",
@@ -42,7 +43,7 @@
     "puppeteer": "^1.1.0",
     "wix-bootstrap-testkit": "latest",
     "wix-config-emitter": "latest",
-    "yoshi": "^2.1.2"
+    "yoshi": "^3.0.0"
   },
   "yoshi": {
     "externals": {
@@ -53,10 +54,10 @@
   },
   "babel": {
     "presets": [
-      "wix"
+      "yoshi"
     ]
   },
   "eslintConfig": {
-    "extends": "wix/react"
+    "extends": "yoshi"
   }
 }

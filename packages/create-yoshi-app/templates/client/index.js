@@ -1,4 +1,4 @@
 require('babel-register');
-const {start} = require('./test/dev/server');
+const { start } = require('./test/dev/server');
 
 start();

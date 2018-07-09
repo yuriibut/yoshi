@@ -6,4 +6,4 @@ const getPath = filename => path.join(rootDir, filename);
 
 bootstrap()
   .express(getPath('server'))
-  .start({disableCluster: process.env.NODE_ENV === 'development'});
+  .start({ disableCluster: process.env.NODE_ENV === 'development' });
