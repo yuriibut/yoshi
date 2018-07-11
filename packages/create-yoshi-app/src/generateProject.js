@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const glob = require('glob');
+const globby = require('globby');
 const mkdirp = require('mkdirp');
 const replaceTemplates = require('./replaceTemplates');
 
@@ -15,12 +15,17 @@ module.exports = (
   },
   workingDir,
 ) => {
-  const templatePath = path.join(__dirname, '../templates', projectType);
+  const typescriptSuffix = transpiler === 'typescript' ? '-typescript' : '';
+  const templatePath = path.join(
+    __dirname,
+    '../templates',
+    projectType + typescriptSuffix,
+  );
 
-  const filesPaths = glob.sync('**/*', {
+  const filesPaths = globby.sync('**/*', {
     cwd: templatePath,
-    nodir: true,
     dot: true,
+    gitignore: true,
   });
 
   const valuesMap = {
@@ -29,6 +34,7 @@ module.exports = (
     authorEmail,
     organization,
   };
+
   const files = {};
 
   filesPaths.forEach(filePath => {

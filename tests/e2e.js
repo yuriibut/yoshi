@@ -39,7 +39,12 @@ const testTemplate = mockedAnswers => {
     it(`should create the project`, async () => {
       verbose && console.log(chalk.cyan(tempDir));
       await generateProject(mockedAnswers, tempDir);
-      expect(fs.readdirSync(tempDir).length).toBeGreaterThan(0);
+
+      if (fs.readdirSync(tempDir).length === 0) {
+        throw new Error(
+          `project dir ${tempDir} is empty, project generation failed`,
+        );
+      }
     });
 
     it(`should run npm install`, () => {
@@ -64,11 +69,11 @@ describe('create-yoshi-app + yoshi e2e tests', () => {
   projectTypes
     .map(projectType => ({
       projectName: `test-${projectType}`,
-      authorName: 'foo',
-      authorEmail: 'foo@wix.com',
+      authorName: 'rany',
+      authorEmail: 'rany@wix.com',
       organization: 'wix',
-      projectType: projectType,
-      transpiler: projectType.endsWith('typescript') ? 'typescript' : 'babel',
+      projectType: projectType.replace('-typescript', ''),
+      transpiler: projectType.endsWith('-typescript') ? 'typescript' : 'babel',
     }))
     .forEach(testTemplate);
 });

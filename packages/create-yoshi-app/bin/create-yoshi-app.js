@@ -11,8 +11,8 @@ const workingDir = process.cwd();
 const emptyDirectory = fs.readdirSync(workingDir).length === 0;
 
 if (!emptyDirectory) {
-  console.log(`The directory "${workingDir}" is not an empty directory`);
-  console.log('Aborting');
+  console.log(`The directory "${workingDir}" is not an empty directory\n`);
+  console.log('Aborting...');
 
   process.exit(1);
 }

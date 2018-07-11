@@ -8,10 +8,26 @@
   "bin": {
     "create-yoshi-app": "bin/create-yoshi-app.js"
   },
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/templates/"
+    ],
+    "modulePathIgnorePatterns": [
+      "/templates/"
+    ]
+  },
   "dependencies": {
     "git-config": "^0.0.7",
-    "glob": "^7.1.2",
+    "globby": "^8.0.1",
     "mkdirp": "^0.5.1",
     "prompts": "^0.1.10"
+  },
+  "devDependencies": {
+    "jest": "^23.3.0",
+    "tempy": "^0.2.1"
   }
 }
