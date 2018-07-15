@@ -10,7 +10,7 @@
   "author": "Ronen Amiel & Ran Yitzhaki",
   "license": "ISC",
   "scripts": {
-    "test": "mocha test",
+    "test": "mocha",
     "customPublish": "node ../../scripts/customPublish.js"
   },
   "peerDependencies": {
