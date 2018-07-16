@@ -1,6 +1,7 @@
 {
   "name": "create-yoshi-app",
   "version": "3.0.0",
+  "private": true,
   "description": "create yoshi powered apps",
   "keywords": [],
   "author": "Ran Yitzhaki & Ronen Amiel",
