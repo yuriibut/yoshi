@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const globby = require('globby');
 const mkdirp = require('mkdirp');
+const getFilesInDir = require('./getFilesInDir');
 const replaceTemplates = require('./replaceTemplates');
 
 module.exports = (
@@ -22,12 +22,6 @@ module.exports = (
     projectType + typescriptSuffix,
   );
 
-  const filesPaths = globby.sync('**/*', {
-    cwd: templatePath,
-    dot: true,
-    gitignore: true,
-  });
-
   const valuesMap = {
     projectName,
     authorName,
@@ -35,16 +29,13 @@ module.exports = (
     organization,
   };
 
-  const files = {};
-
-  filesPaths.forEach(filePath => {
-    const content = fs.readFileSync(path.join(templatePath, filePath), 'utf-8');
-    files[filePath] = replaceTemplates(content, valuesMap);
-  });
+  const files = getFilesInDir(templatePath);
 
   for (const fileName in files) {
     const fullPath = path.join(workingDir, fileName);
     mkdirp.sync(path.dirname(fullPath));
-    fs.writeFileSync(fullPath, files[fileName]);
+    const transformed = replaceTemplates(files[fileName], valuesMap);
+
+    fs.writeFileSync(fullPath, transformed);
   }
 };
