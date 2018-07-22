@@ -47,7 +47,7 @@ The User Guide includes information on different topics, such as:
 - [Adding external assets to the client](docs/faq/ASSETS.md)
 - [Hot Module Reloading](docs/faq/USING-HMR.md)
 - [Yoshi's Babel Preset (babel-preset-yoshi)](packages/babel-preset-yoshi/README.md)
-- [Setupping Enzyme](docs/faq/SETUP-TESTING-WITH-ENZYME.md)
+- [Setup Enzyme](docs/faq/SETUP-TESTING-WITH-ENZYME.md)
 - [Exporting ES modules side-by-side with commonjs](docs/faq/EXPORT-MODULES.md)
 - [Disabling CSS modules in specific places](docs/faq/DISABLE-SPECIFIC-CSS-MODULES.md)
 - [Analyzing webpack bundle contents](docs/faq/WEBPACK-ANALYZE.md)
