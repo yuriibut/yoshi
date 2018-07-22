@@ -2,7 +2,7 @@
 
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
 
-Wix's toolkit to support building applications of different kinds.
+Wix's toolkit to support building applications of different types.
 
 * [Creating an App](#creating-an-app) - How to create a new app.
 * [Basic Usage](#basic-usage) - How to use Yoshi.
