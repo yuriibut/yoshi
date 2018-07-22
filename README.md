@@ -21,7 +21,7 @@ npm start
 Then open [http://localhost:3000/](http://localhost:3000/) to see your app.
 
 <p align='center'>
-  <img src='https://yoshi-assets.surge.sh/create-yoshi-app__.gif' alt='create-yoshi-app'>
+  <img src='https://yoshi-assets.surge.sh/create-yoshi-app.gif' alt='create-yoshi-app'>
 </p>
 
 
