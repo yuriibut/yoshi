@@ -10,7 +10,7 @@ Wix's toolkit to support building applications of different types.
 
 If something doesnt work for you, please [file an issue](https://github.com/wix/yoshi/issues/new/choose).
 
-## Quickstart
+## Creating an App
 
 ```sh
 npx create-yoshi-app my-app
