@@ -23,7 +23,7 @@ const serverLogPrefixer = () => {
   });
 };
 
-const config = loadConfig();
+// const config = loadConfig();
 
 module.exports = async () => {
   // start with a few new lines
@@ -31,73 +31,73 @@ module.exports = async () => {
 
   global.BROWSER = await puppeteer.launch({
     // defaults
-    headless: true,
-    args: ['--no-sandbox'],
+    headless: false,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
 
     // user defined options
-    ...config.puppeteer,
+    // ...config.puppeteer,
   });
 
-  const webpackDevServerProcessCwd = getProcessForPort(servers.cdn.port());
+  // const webpackDevServerProcessCwd = getProcessForPort(servers.cdn.port());
 
-  if (!webpackDevServerProcessCwd) {
-    throw new Error(
-      `Could not find webpack dev server running on port ${servers.cdn.port()}, please run 'npm start'.`,
-    );
-  }
+  // if (!webpackDevServerProcessCwd) {
+  //   throw new Error(
+  //     `Could not find webpack dev server running on port ${servers.cdn.port()}, please run 'npm start'.`,
+  //   );
+  // }
 
-  if (webpackDevServerProcessCwd.directory !== process.cwd()) {
-    throw new Error(
-      `A different process (${
-        webpackDevServerProcessCwd.directory
-      }) is already running on port '${servers.cdn.port()}', aborting.`,
-    );
-  }
+  // if (webpackDevServerProcessCwd.directory !== process.cwd()) {
+  //   throw new Error(
+  //     `A different process (${
+  //       webpackDevServerProcessCwd.directory
+  //     }) is already running on port '${servers.cdn.port()}', aborting.`,
+  //   );
+  // }
 
-  if (config.server) {
-    const serverProcessCwd = getProcessForPort(config.server.port);
+  // if (config.server) {
+  //   const serverProcessCwd = getProcessForPort(config.server.port);
 
-    if (serverProcessCwd) {
-      throw new Error(
-        `A different process (${
-          serverProcessCwd.directory
-        }) is already running on port ${config.server.port}, aborting.`,
-      );
-    }
+  //   if (serverProcessCwd) {
+  //     throw new Error(
+  //       `A different process (${
+  //         serverProcessCwd.directory
+  //       }) is already running on port ${config.server.port}, aborting.`,
+  //     );
+  //   }
 
-    global.SERVER = child_process.spawn('node', [config.server.filename], {
-      stdio: 'pipe',
-      env: {
-        ...process.env,
-        PORT: config.server.port,
-      },
-    });
+  //   global.SERVER = child_process.spawn('node', [config.server.filename], {
+  //     stdio: 'pipe',
+  //     env: {
+  //       ...process.env,
+  //       PORT: config.server.port,
+  //     },
+  //   });
 
-    global.SERVER.stdout.pipe(serverLogPrefixer()).pipe(process.stdout);
-    global.SERVER.stderr.pipe(serverLogPrefixer()).pipe(process.stderr);
+  //   global.SERVER.stdout.pipe(serverLogPrefixer()).pipe(process.stdout);
+  //   global.SERVER.stderr.pipe(serverLogPrefixer()).pipe(process.stderr);
 
-    if (config.server.port) {
-      const timeout = 5000;
+  //   if (config.server.port) {
+  //     const timeout = 5000;
 
-      const portFound = await waitPort({
-        port: config.server.port,
-        output: 'silent',
-        timeout,
-      });
+  //     const portFound = await waitPort({
+  //       port: config.server.port,
+  //       output: 'silent',
+  //       timeout,
+  //     });
 
-      if (!portFound) {
-        throw new Error(
-          `Tried running '${
-            config.server.filename
-          }' but couldn't find a server on port '${
-            config.server.port
-          }' after ${timeout} miliseconds.`,
-        );
-      }
-    }
+  //     if (!portFound) {
+  //       throw new Error(
+  //         `Tried running '${
+  //           config.server.filename
+  //         }' but couldn't find a server on port '${
+  //           config.server.port
+  //         }' after ${timeout} miliseconds.`,
+  //       );
+  //     }
+  //   }
 
-    console.log('\n');
-  }
+  //   console.log('\n');
+  // }
 
   await fs.outputFile(WS_ENDPOINT_PATH, global.BROWSER.wsEndpoint());
 };

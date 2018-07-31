@@ -38,7 +38,7 @@ module.exports.getProcessForPort = port => {
 };
 
 module.exports.loadConfig = () => {
-  const configPath = path.join(process.cwd(), 'jest-yoshi.config.js');
+  const configPath = path.join(process.cwd(), 'jest-yoshi.config.ts');
 
   if (!fs.existsSync(configPath)) {
     throw new Error(

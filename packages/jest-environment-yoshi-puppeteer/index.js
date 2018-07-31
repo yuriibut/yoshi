@@ -2,8 +2,16 @@ const fs = require('fs-extra');
 const puppeteer = require('puppeteer');
 const NodeEnvironment = require('jest-environment-node');
 const { WS_ENDPOINT_PATH } = require('./constants');
+const BootstrapEnvironment = require('jest-environment-yoshi-bootstrap');
+// const { loadConfig } = require('./utils');
 
-module.exports = class PuppeteerEnvironment extends NodeEnvironment {
+// const config = loadConfig();
+
+// const ParentEnvironment = config.bootstrap
+//   ? require('jest-environment-yoshi-bootstrap')
+//   : require('jest-environment-node');
+
+module.exports = class PuppeteerEnvironment extends BootstrapEnvironment {
   async setup() {
     await super.setup();
 
