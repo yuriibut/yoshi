@@ -63,11 +63,11 @@ module.exports = class BootstrapEnvironment extends NodeEnvironment {
   }
 
   async teardown() {
-    await super.teardown(this.global);
+    await super.teardown();
 
     // await this.global.app.stop();
     // await this.global.rpcServer.stop();
 
-    // await this.config.bootstrap.teardown(this.global);
+    await this.config.bootstrap.teardown(this.global);
   }
 };
