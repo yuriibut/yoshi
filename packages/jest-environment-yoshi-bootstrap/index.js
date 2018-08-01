@@ -1,35 +1,22 @@
 const path = require('path');
-const testkit = require('wix-bootstrap-testkit');
-const configEmitter = require('wix-config-emitter');
-const rpcTestkit = require('wix-rpc-testkit');
+// const testkit = require('wix-bootstrap-testkit');
+// const configEmitter = require('wix-config-emitter');
+// const rpcTestkit = require('wix-rpc-testkit');
 const NodeEnvironment = require('jest-environment-node');
-const project = require('yoshi/config/project');
+// const project = require('yoshi/config/project');
 const {
-  PORT,
-  MANAGEMENT_PORT,
-  RPC_PORT,
-  APP_CONF_DIR,
+  // PORT,
+  // MANAGEMENT_PORT,
+  // RPC_PORT,
+  // APP_CONF_DIR,
+  getPort,
 } = require('./constants');
 
-// const config = require(path.join(process.cwd(), 'jest-yoshi.config.js'));
-
-const JEST_WORKER_ID = parseInt(process.env.JEST_WORKER_ID, 10);
-
-let COUNTER = 1;
-
-function getPort() {
-  return (JEST_WORKER_ID + 3) * 1000 + COUNTER++;
-}
+const config = require(path.join(process.cwd(), 'jest-yoshi.config.js'));
 
 module.exports = class BootstrapEnvironment extends NodeEnvironment {
   async setup() {
     await super.setup();
-
-    // this.config = this.runtime.requireModule(
-    //   path.join(process.cwd(), 'jest-yoshi.config.ts'),
-    // );
-
-    this.config = require(path.join(process.cwd(), 'jest-yoshi.config.js'));
 
     // const emitter = configEmitter({
     //   sourceFolders: ['./templates'],
@@ -59,7 +46,7 @@ module.exports = class BootstrapEnvironment extends NodeEnvironment {
     // await this.global.rpcServer.start();
     // await this.global.app.start();
 
-    await this.config.bootstrap.setup(this.global, getPort);
+    await config.bootstrap.setup(this.global, getPort);
   }
 
   async teardown() {
@@ -68,6 +55,6 @@ module.exports = class BootstrapEnvironment extends NodeEnvironment {
     // await this.global.app.stop();
     // await this.global.rpcServer.stop();
 
-    await this.config.bootstrap.teardown(this.global);
+    await config.bootstrap.teardown(this.global);
   }
 };

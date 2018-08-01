@@ -31,8 +31,8 @@ module.exports = async () => {
 
   global.BROWSER = await puppeteer.launch({
     // defaults
-    headless: false,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    headless: true,
+    args: ['--no-sandbox'],
 
     // user defined options
     // ...config.puppeteer,

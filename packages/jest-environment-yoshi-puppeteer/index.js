@@ -1,17 +1,20 @@
+const path = require('path');
 const fs = require('fs-extra');
 const puppeteer = require('puppeteer');
-const NodeEnvironment = require('jest-environment-node');
+// const NodeEnvironment = require('jest-environment-node');
 const { WS_ENDPOINT_PATH } = require('./constants');
-const BootstrapEnvironment = require('jest-environment-yoshi-bootstrap');
+// const BootstrapEnvironment = require('jest-environment-yoshi-bootstrap');
 // const { loadConfig } = require('./utils');
 
 // const config = loadConfig();
 
-// const ParentEnvironment = config.bootstrap
-//   ? require('jest-environment-yoshi-bootstrap')
-//   : require('jest-environment-node');
+const config = require(path.join(process.cwd(), 'jest-yoshi.config.js'));
 
-module.exports = class PuppeteerEnvironment extends BootstrapEnvironment {
+const ParentEnvironment = config.bootstrap
+  ? require('jest-environment-yoshi-bootstrap')
+  : require('jest-environment-node');
+
+module.exports = class PuppeteerEnvironment extends ParentEnvironment {
   async setup() {
     await super.setup();
 
