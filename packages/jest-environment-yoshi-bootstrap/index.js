@@ -25,9 +25,11 @@ module.exports = class BootstrapEnvironment extends NodeEnvironment {
   async setup() {
     await super.setup();
 
-    this.config = this.runtime.requireModule(
-      path.join(process.cwd(), 'jest-yoshi.config.ts'),
-    );
+    // this.config = this.runtime.requireModule(
+    //   path.join(process.cwd(), 'jest-yoshi.config.ts'),
+    // );
+
+    this.config = require(path.join(process.cwd(), 'jest-yoshi.config.js'));
 
     // const emitter = configEmitter({
     //   sourceFolders: ['./templates'],
@@ -61,7 +63,7 @@ module.exports = class BootstrapEnvironment extends NodeEnvironment {
   }
 
   async teardown() {
-    await super.teardown();
+    await super.teardown(this.global);
 
     // await this.global.app.stop();
     // await this.global.rpcServer.stop();
