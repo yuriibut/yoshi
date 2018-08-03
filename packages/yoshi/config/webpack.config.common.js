@@ -41,6 +41,7 @@ const config = {
       require('../src/loaders/html')(),
       require('../src/loaders/haml')(),
       require('../src/loaders/raw')(),
+      require('../src/loaders/source-map-loader')(),
     ],
   },
 
